@@ -25,7 +25,7 @@ Note: this is hosted on Render's free tier, which spins the service down after p
 | `models.go` | User and Ticket data structures, ticket status state machine |
 | `store.go` | Thread-safe in-memory data store |
 | `auth.go` | Password hashing, JWT creation/validation, register and login handlers |
-| `middleware.go` | JWT authentication and CORS middleware |
+| `middleware.go` | JWT authentication and request body size limiting |
 | `tickets.go` | Ticket create, list, get, and status update handlers |
 | `main.go` | Route registration, static file serving, and server startup |
 | `static/` | Vanilla JS frontend files (`index.html`, `style.css`, `app.js`) |
@@ -43,7 +43,7 @@ Note: this is hosted on Render's free tier, which spins the service down after p
 | GET | `/tickets/{id}` | Yes | Get a single ticket (must be owned by the caller) |
 | PATCH | `/tickets/{id}/status` | Yes | Update a ticket's status (must be owned by the caller) |
 
-Protected endpoints require an `Authorization: Bearer <token>` header, using the token returned by `/auth/login`. Cross-Origin Resource Sharing (CORS) is enabled.
+Protected endpoints require an `Authorization: Bearer <token>` header, using the token returned by `/auth/login`.
 
 ### Ticket status flow
 
@@ -55,7 +55,7 @@ Statuses can only move forward one step at a time. A closed ticket cannot be reo
 
 ## Automated Tests
 
-This project includes a comprehensive end-to-end integration test suite that tests all APIs, edge cases, CORS, and ownership validations.
+This project includes a comprehensive end-to-end integration test suite that tests all APIs, edge cases, and ownership validations.
 
 Run the tests via:
 ```bash
@@ -64,7 +64,7 @@ go test -v ./...
 
 ## Running Locally (without Docker)
 
-Requires Go 1.23 or later installed.
+Requires Go 1.27.1 or later installed.
 
 ```bash
 go mod download

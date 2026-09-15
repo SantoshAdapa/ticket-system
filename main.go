@@ -7,8 +7,7 @@ import (
 )
 
 func main() {
-	// Load the JWT signing secret from the environment (or fall back to a
-	// development default with a warning).
+	// Load the required JWT signing secret from the environment.
 	InitJWTSecret()
 
 	// Create the in-memory data store that holds users and tickets.

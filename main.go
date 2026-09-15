@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -43,9 +44,17 @@ func main() {
 	// Update a ticket's status (must be owned by the authenticated user).
 	mux.Handle("PATCH /tickets/{id}/status", AuthMiddleware(HandleUpdateTicketStatus(store)))
 
-	// Start the HTTP server on port 8080.
-	log.Println("Server starting on :8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	// Start the HTTP server. Locally this defaults to port 8080, matching
+	// the assignment's local run contract. On Render (and most cloud hosts),
+	// the platform assigns a port via the PORT environment variable, so we
+	// read that first and fall back to 8080 only if it's not set.
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("Server starting on :%s", port)
+	if err := http.ListenAndServe(":"+port, mux); err != nil {
 		log.Fatalf("FATAL: server failed to start: %v", err)
 	}
 }

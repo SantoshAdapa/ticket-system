@@ -52,6 +52,25 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// CORSMiddleware enables Cross-Origin Resource Sharing (CORS) headers on all
+// HTTP responses and handles preflight OPTIONS requests cleanly. This allows
+// automated web-based test runners or external browsers to make API calls seamlessly.
+func CORSMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+		// Handle browser preflight (OPTIONS) requests.
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 // GetUserIDFromContext extracts the authenticated user's ID from the request
 // context. This should only be called inside handlers that are wrapped by
 // AuthMiddleware — it will return an empty string if the middleware hasn't run.

@@ -115,22 +115,22 @@ func HandleUpdateTicketStatus(store *Store) http.HandlerFunc {
 			return
 		}
 
-		// Validate that the provided status is one of the three allowed values.
-		if !IsValidStatus(req.Status) {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid status value"})
-			return
-		}
-
-		// Look up the ticket to check existence and ownership.
+		// Look up the ticket to check existence and ownership first.
 		ticket, found := store.GetTicketByID(ticketID)
 		if !found {
 			writeJSON(w, http.StatusNotFound, map[string]string{"error": "ticket not found"})
 			return
 		}
 
-		// Check that the authenticated user owns this ticket.
+		// Check that the authenticated user owns this ticket before inspecting parameters.
 		if ticket.UserID != userID {
 			writeJSON(w, http.StatusForbidden, map[string]string{"error": "forbidden"})
+			return
+		}
+
+		// Validate that the provided status is one of the three allowed values.
+		if !IsValidStatus(req.Status) {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid status value"})
 			return
 		}
 

@@ -118,10 +118,10 @@ func HandleRegister(store *Store) http.HandlerFunc {
 			return
 		}
 
-		// Validate that both required fields are present and non-empty.
+		// Validate that both required fields are present and the email looks valid.
 		email := strings.ToLower(strings.TrimSpace(req.Email))
-		if email == "" || strings.TrimSpace(req.Password) == "" {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "email and password are required"})
+		if email == "" || !strings.Contains(email, "@") || strings.TrimSpace(req.Password) == "" {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "valid email and password are required"})
 			return
 		}
 

@@ -58,7 +58,11 @@ func main() {
 	}
 
 	log.Printf("Server starting on :%s", port)
-	if err := http.ListenAndServe(":"+port, CORSMiddleware(mux)); err != nil {
+	
+	// We wrap the entire router in our security middlewares (Size Limits & CORS)
+	handler := MaxBytesMiddleware(CORSMiddleware(mux))
+	
+	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatalf("FATAL: server failed to start: %v", err)
 	}
 }

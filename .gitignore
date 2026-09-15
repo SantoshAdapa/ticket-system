@@ -3,3 +3,10 @@
 !.env.example
 *.exe
 ticket-system
+
+# OS & IDE Files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

@@ -118,7 +118,8 @@ func HandleRegister(store *Store) http.HandlerFunc {
 		}
 
 		// Validate that both required fields are present and non-empty.
-		if strings.TrimSpace(req.Email) == "" || strings.TrimSpace(req.Password) == "" {
+		email := strings.ToLower(strings.TrimSpace(req.Email))
+		if email == "" || strings.TrimSpace(req.Password) == "" {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "email and password are required"})
 			return
 		}
@@ -131,7 +132,7 @@ func HandleRegister(store *Store) http.HandlerFunc {
 		}
 
 		// Try to create the user — this will fail if the email is already taken.
-		user, created := store.CreateUser(strings.TrimSpace(req.Email), hashedPassword)
+		user, created := store.CreateUser(email, hashedPassword)
 		if !created {
 			writeJSON(w, http.StatusConflict, map[string]string{"error": "email already registered"})
 			return
@@ -157,13 +158,14 @@ func HandleLogin(store *Store) http.HandlerFunc {
 		}
 
 		// Validate that both fields are present.
-		if strings.TrimSpace(req.Email) == "" || strings.TrimSpace(req.Password) == "" {
+		email := strings.ToLower(strings.TrimSpace(req.Email))
+		if email == "" || strings.TrimSpace(req.Password) == "" {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "email and password are required"})
 			return
 		}
 
 		// Look up the user by email.
-		user, found := store.GetUserByEmail(strings.TrimSpace(req.Email))
+		user, found := store.GetUserByEmail(email)
 		if !found {
 			writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid email or password"})
 			return

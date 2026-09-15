@@ -55,7 +55,7 @@ Statuses can only move forward one step at a time. A closed ticket cannot be reo
 
 ## Automated Tests
 
-This project includes a comprehensive end-to-end integration test suite that tests all APIs, edge cases, and ownership validations.
+This project includes an end-to-end integration test suite that tests the APIs, edge cases, and ownership validations.
 
 Run the tests via:
 ```bash

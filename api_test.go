@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
 func setupTestServer() *httptest.Server {
+	os.Setenv("JWT_SECRET", "test-secret-key-for-unit-tests")
 	InitJWTSecret()
 	store := NewStore()
 
@@ -23,7 +25,7 @@ func setupTestServer() *httptest.Server {
 	mux.Handle("GET /tickets/{id}", AuthMiddleware(HandleGetTicket(store)))
 	mux.Handle("PATCH /tickets/{id}/status", AuthMiddleware(HandleUpdateTicketStatus(store)))
 
-	return httptest.NewServer(CORSMiddleware(mux))
+	return httptest.NewServer(mux)
 }
 
 func TestEndToEndAPI(t *testing.T) {

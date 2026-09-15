@@ -14,44 +14,41 @@ func main() {
 	// Create the in-memory data store that holds users and tickets.
 	store := NewStore()
 
-	// Create a traffic director (router) that will map incoming web addresses
-	// (like /health or /tickets) to the correct functions that handle them.
+	// Initialize the HTTP router and register all endpoints.
 	mux := http.NewServeMux()
 
 	// --- Public routes (no authentication required) ---
 
-	// Serve the frontend static files at the root URL (/)
-	mux.Handle("/", http.FileServer(http.Dir("./static")))
-
-	// Health check endpoint — used by load balancers and uptime monitors.
+	// The health check endpoint allows load balancers to verify the service is running.
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
 	})
 
-	// User registration — creates a new account.
+	// User registration and login
 	mux.HandleFunc("POST /auth/register", HandleRegister(store))
-
-	// User login — returns a JWT token for authenticated access.
 	mux.HandleFunc("POST /auth/login", HandleLogin(store))
 
-	// --- Protected routes (require valid JWT in Authorization header) ---
+	// Serve the frontend UI files from the static directory.
+	mux.Handle("GET /", http.FileServer(http.Dir("./static")))
 
-	// Create a new ticket.
+	// --- Protected routes (require JWT) ---
+	
+	// Create a new ticket
 	mux.Handle("POST /tickets", AuthMiddleware(HandleCreateTicket(store)))
-
-	// List all tickets belonging to the authenticated user.
+	
+	// List all tickets owned by the current user
 	mux.Handle("GET /tickets", AuthMiddleware(HandleListTickets(store)))
-
-	// Get a single ticket by ID (must be owned by the authenticated user).
+	
+	// Get a specific ticket (must be owned by the current user)
 	mux.Handle("GET /tickets/{id}", AuthMiddleware(HandleGetTicket(store)))
-
-	// Update a ticket's status (must be owned by the authenticated user).
+	
+	// Update the status of a specific ticket
 	mux.Handle("PATCH /tickets/{id}/status", AuthMiddleware(HandleUpdateTicketStatus(store)))
 
-	// Start the HTTP server. Locally this defaults to port 8080, matching
-	// the assignment's local run contract. On Render (and most cloud hosts),
-	// the platform assigns a port via the PORT environment variable, so we
-	// read that first and fall back to 8080 only if it's not set.
+	// Get the port from the environment variable (Render sets this automatically).
+	// If it's empty, default to 8080 for local development.
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -59,8 +56,8 @@ func main() {
 
 	log.Printf("Server starting on :%s", port)
 	
-	// We wrap the entire router in our security middlewares (Size Limits & CORS)
-	handler := MaxBytesMiddleware(CORSMiddleware(mux))
+	// Wrap the entire router in the MaxBytesMiddleware size limit
+	handler := MaxBytesMiddleware(mux)
 	
 	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatalf("FATAL: server failed to start: %v", err)

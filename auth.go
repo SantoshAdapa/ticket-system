@@ -17,20 +17,16 @@ import (
 // It is loaded from the JWT_SECRET environment variable at startup.
 var jwtSecret []byte
 
-// InitJWTSecret reads the JWT signing key from the JWT_SECRET environment
-// variable. If the variable is not set, a hardcoded development-only default
-// is used and a clear warning is printed so this is never silent in production.
+// InitJWTSecret reads the JWT signing key from the JWT_SECRET environment variable.
 func InitJWTSecret() {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		log.Println("WARNING: JWT_SECRET environment variable is not set. Using insecure default secret. DO NOT use this in production.")
-		secret = "dev-only-insecure-default-secret"
+		log.Fatal("FATAL: JWT_SECRET environment variable is required")
 	}
 	jwtSecret = []byte(secret)
 }
 
 // hashPassword takes a plain-text password and returns its bcrypt hash.
-// The hash is safe to store — the original password cannot be recovered from it.
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -40,15 +36,12 @@ func hashPassword(password string) (string, error) {
 }
 
 // checkPassword compares a plain-text password against a bcrypt hash.
-// Returns true if they match, false otherwise.
 func checkPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-// generateToken creates a signed JWT containing the user's ID and a 24-hour
-// expiration time. The token can be used in the Authorization header to
-// access protected endpoints.
+// generateToken creates a signed JWT containing the user's ID and a 24-hour expiration.
 func generateToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
@@ -62,13 +55,10 @@ func generateToken(userID string) (string, error) {
 	return signedToken, nil
 }
 
-// ValidateToken parses and validates a JWT string. If the token is valid
-// and not expired, it returns the user ID embedded in the claims.
-// Returns an error if the token is malformed, has a bad signature, or is expired.
+// ValidateToken parses and validates a JWT string.
 func ValidateToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Double-check that the token's digital signature wasn't forged using a
-		// different or weaker encryption method than we expect.
+		// Ensure the token was signed using the expected HMAC (HS256) method.
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}

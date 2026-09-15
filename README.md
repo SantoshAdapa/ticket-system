@@ -78,7 +78,7 @@ The server starts on port 8080 and serves the UI at `http://localhost:8080`. Ver
 curl http://localhost:8080/health
 ```
 
-If `JWT_SECRET` is not set, the application falls back to a hardcoded development-only secret and prints a clear warning to the logs. This should never be relied on outside of quick local testing.
+**Note:** `JWT_SECRET` is strictly required. If it is not set, the application will exit immediately on startup.
 
 ## Running Locally with Docker
 
@@ -95,7 +95,7 @@ See `.env.example`.
 
 | Variable | Required | Description |
 |---|---|---|
-| `JWT_SECRET` | Recommended | Secret key used to sign JWT tokens. Falls back to an insecure default (with a logged warning) if unset. |
+| `JWT_SECRET` | **Required** | Secret key used to sign JWT tokens. The app will panic on startup if this is missing. |
 | `PORT` | Optional | Port the server listens on (defaults to 8080). Used by Render for dynamic port binding. |
 
 ## Assumptions Made

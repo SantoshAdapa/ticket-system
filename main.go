@@ -14,7 +14,8 @@ func main() {
 	// Create the in-memory data store that holds users and tickets.
 	store := NewStore()
 
-	// Set up the HTTP router using Go 1.22+ method+path patterns.
+	// Create a traffic director (router) that will map incoming web addresses
+	// (like /health or /tickets) to the correct functions that handle them.
 	mux := http.NewServeMux()
 
 	// --- Public routes (no authentication required) ---

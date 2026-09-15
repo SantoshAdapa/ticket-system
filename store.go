@@ -7,9 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// Store holds all application data in memory using Go maps.
-// All methods are safe to call from multiple goroutines because
-// every read/write is protected by a read-write mutex.
+// Store acts as our temporary database. It holds all user and ticket data inside
+// the server's memory. We use special digital locks (mutexes) to ensure that if
+// hundreds of users try to create tickets at the exact same millisecond, the
+// system won't crash or mix up their data.
 type Store struct {
 	// mu protects all maps below from concurrent access.
 	mu sync.RWMutex

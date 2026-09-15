@@ -67,7 +67,8 @@ func generateToken(userID string) (string, error) {
 // Returns an error if the token is malformed, has a bad signature, or is expired.
 func ValidateToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Make sure the signing method is HMAC (HS256) and not something unexpected.
+		// Double-check that the token's digital signature wasn't forged using a
+		// different or weaker encryption method than we expect.
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}

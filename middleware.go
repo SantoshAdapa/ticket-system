@@ -14,13 +14,12 @@ type contextKey string
 // is stored after the JWT middleware validates their token.
 const userIDKey contextKey = "user_id"
 
-// AuthMiddleware wraps an http.Handler and enforces JWT authentication.
-// It checks the Authorization header for a valid "Bearer <token>" value,
-// validates the token, extracts the user ID from it, and stores the user ID
-// in the request context so downstream handlers can access it.
+// AuthMiddleware acts as a security bouncer for our private endpoints (like
+// creating or viewing tickets). Before letting a request through, it checks if
+// the user has a valid digital ID card (the token).
 //
-// If the token is missing, malformed, or invalid, it responds with 401
-// Unauthorized and stops the request from reaching the protected handler.
+// If the token is missing, forged, or expired, the bouncer blocks the request
+// and returns an 'unauthorized' error.
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Read the Authorization header from the request.
@@ -52,9 +51,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// CORSMiddleware enables Cross-Origin Resource Sharing (CORS) headers on all
-// HTTP responses and handles preflight OPTIONS requests cleanly. This allows
-// automated web-based test runners or external browsers to make API calls seamlessly.
+// CORSMiddleware is a web security policy. By default, web browsers block
+// websites from talking to backends hosted on different domains. This function
+// adds specific permissions allowing our frontend website to communicate with
+// this backend safely.
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")

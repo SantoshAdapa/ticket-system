@@ -19,6 +19,9 @@ func main() {
 
 	// --- Public routes (no authentication required) ---
 
+	// Serve the frontend static files at the root URL (/)
+	mux.Handle("/", http.FileServer(http.Dir("./static")))
+
 	// Health check endpoint — used by load balancers and uptime monitors.
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})

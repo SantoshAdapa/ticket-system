@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVA Ticket System</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Section: Login & Register -->
+        <div id="auth-section">
+            <h1 id="auth-title">Login to Ticket System</h1>
+            <div id="auth-error" class="error-msg hidden"></div>
+            
+            <form id="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="intern@evabharat.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" id="auth-submit-btn" class="btn primary">Login</button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="auth-toggle-text">Don't have an account? </span>
+                <a href="#" id="auth-toggle-link">Register here</a>
+            </div>
+        </div>
+
+        <!-- App Section: Dashboard (Tickets) -->
+        <div id="app-section" class="hidden">
+            <header>
+                <h1>My Tickets</h1>
+                <button id="logout-btn" class="btn danger">Logout</button>
+            </header>
+
+            <!-- Create Ticket Form -->
+            <div class="card create-ticket-card">
+                <h2>Create New Ticket</h2>
+                <div id="ticket-error" class="error-msg hidden"></div>
+                <form id="create-ticket-form">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" required placeholder="Issue title">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" rows="3" required placeholder="Describe the issue..."></textarea>
+                    </div>
+                    <button type="submit" class="btn primary">Create Ticket</button>
+                </form>
+            </div>
+
+            <!-- Ticket List -->
+            <div class="ticket-list-container">
+                <h2>Your Tickets</h2>
+                <div id="tickets-container">
+                    <p class="loading">Loading tickets...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

@@ -25,6 +25,9 @@ WORKDIR /app
 # Copy only the compiled binary from the build stage.
 COPY --from=builder /app/ticket-system .
 
+# Copy the static frontend files so the web server can serve them.
+COPY --from=builder /app/static ./static
+
 # The service listens on port 8080, as required by the assignment.
 EXPOSE 8080
 
